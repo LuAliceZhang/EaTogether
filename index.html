@@ -1,0 +1,199 @@
+
+<html lang="en">
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <meta name="google-signin-client_id" content="557865866763-5to5sfieb0rob5fi6q8e8ctbetl7s7re.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/4.5.1/firebase.js"></script>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://pingendo.com/assets/bootstrap/bootstrap-4.0.0-beta.1.css" type="text/css">
+</head>
+
+<body>
+
+
+
+
+  <script>
+
+  // // can be used on other page except log in page
+  // function checkIfLoggedIn()
+  // {
+
+  //  testkey = sessionStorage.getItem('myUserEntity');
+  //  console.log(testkey);
+  //  if(sessionStorage.getItem('myUserEntity') == null){
+  //       //Redirect to login page, no user entity available in sessionStorage
+        
+  //     } else {
+  //       //User already logged in
+  //       var userEntity = {};
+  //       userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+
+  //     }
+  //   }
+      var clicked=false;
+      function clicklog(){
+        clicked=true;
+         console.log('User signed out.');
+      //sessionStorage.removeItem('myUserEntity');
+       sessionStorage.clear();
+       localStorage.clear();
+        var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log('User signed out.');
+    });
+
+
+      }
+
+   
+
+    // google api login
+    function onSignIn(googleUser) {
+      
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+        console.log('User signed out.');
+    });
+       if(clicked){
+       var profile = googleUser.getBasicProfile();
+      }
+      
+      
+            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+
+
+            user_email = profile.getEmail();
+
+            if(profile.getEmail().endsWith("@usc.edu")){
+             document.getElementById("notification").innerHTML = user_email;
+             
+
+
+
+
+             user_email = profile.getEmail();
+             console.log(user_email);
+
+
+
+             // Initialize Firebase
+             
+  var config = {
+    apiKey: "AIzaSyCkSaYu8onQ5v6VioLcxJHGH3idSorGtu8",
+    authDomain: "eatogether-dd7d2.firebaseapp.com",
+    databaseURL: "https://eatogether-dd7d2.firebaseio.com",
+    projectId: "eatogether-dd7d2",
+    storageBucket: "",
+    messagingSenderId: "210383482029"
+  };
+  firebase.initializeApp(config);
+            
+
+
+
+
+
+
+            var ref = firebase.database().ref("/user");
+            var to_remove = user_email.slice(user_email.length-8,user_email.length);
+             var key = user_email.slice(0,user_email.length - to_remove.length)
+             console.log(key);
+
+        // insert data into DB
+        var newData={
+          
+      
+          email:user_email,
+          name:profile.getName(),
+          image:profile.getImageUrl(),
+        }
+
+     /*  var insertData =  ref.push(newData);
+        var user_id = insertData.getKey();
+        console.log(user_id);*/
+
+        ref.child(key).set({
+          email:user_email,
+          name:profile.getName(),
+          image:profile.getImageUrl(),
+});
+
+        
+        var auth2 = gapi.auth2.getAuthInstance();
+        if (auth2.isSignedIn.get()) {
+          var profile = auth2.currentUser.get().getBasicProfile();
+          console.log('ID: ' + profile.getId());
+          console.log('Full Name: ' + profile.getName());
+          console.log('Given Name: ' + profile.getGivenName());
+          console.log('Family Name: ' + profile.getFamilyName());
+          console.log('Image URL: ' + profile.getImageUrl());
+          console.log('Email: ' + profile.getEmail());
+          console.log(auth2.currentUser.get().getId());
+        }
+
+      // creat session and store user entity
+      myUserEntity = {};
+      myUserEntity.userId = key;
+      myUserEntity.Name = profile.getName();
+      myUserEntity.email = profile.getEmail();
+      
+      //Store the entity object in sessionStorage where it will be accessible from all pages of your site.
+      sessionStorage.setItem('myUserEntity',JSON.stringify(myUserEntity));
+      key = sessionStorage.getItem('myUserEntity');
+      console.log(key);
+
+      // direct to test2.html,change it to your post page here
+      var url = "post.html?id="+myUserEntity+";";
+       window.location.href = url;
+
+
+      //console.log(url);
+    }else{
+      alert("Sorry,eat together is only available to USC account.");
+    }
+  }
+  </script>
+
+ 
+  <div class="py-5 text-center opaque-overlay" style="background-image: url(landing.jpg);  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  min-width: 100%;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  display: block;">
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-md-12 text-white">
+          <h1 class="display-3 mb-4">Eat Together</h1>
+          <p class="lead mb-5">Two is better than One</p>
+          <center>
+            <div class="g-signin2" onclick="clicklog()" data-onsuccess="onSignIn"></div></center>
+           <!--  <a href="#" class="btn btn-lg mx-1 btn-secondary">Log in</a>
+           <a href="#" class="btn btn-lg btn-primary mx-1">Sign up</a> -->
+         </div>
+       </div>
+     </div>
+   </div>
+
+   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+
+
+   <p id="notification"></p>
+
+ </body>
+
+ </html> 
