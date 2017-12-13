@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://pingendo.com/assets/bootstrap/bootstrap-4.0.0-beta.1.css" type="text/css"> 
+  <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+  <script src="https://smtpjs.com/smtp.js"></script>
+  <style>
+  a,p,label,h1 {font-family:Georgia, serif;font-style:italic;font-weight: bold;}
+    body {margin:0;width: 100%; height: 100%;}
+     html {margin:0;width: 100%; height: 100%;}
+    .topnav {
+      overflow: hidden;
+      background-color: #333;
+    }
+    .topnav a {
+      float: left;
+      color: #f2f2f2;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+      font-size: 17px;
+    }
+    .topnav a:hover {
+      background-color: #ddd;
+      color: black;
+      top: 0px;
+    }     
+    .topnav a.active {
+      background-color: #8c2023;
+      color: white;
+    }
+    .topnav a.signout {
+  float: right;
+ 
+}
+  </style>
+</head>
+
+<body>
+<script type="text/javascript">
+function signOut() {
+
+      console.log('User signed out.');
+      //sessionStorage.removeItem('myUserEntity');
+       sessionStorage.clear();
+       localStorage.clear();
+
+
+ //window.location.href="test.html";
+
+    }
+</script>
+
+
+   <div class="topnav">
+        <a href="post.html">Home</a>
+       
+        <a href="review_history.html">Review</a>
+        
+
+             <a   style = "  background-color: #8c2023;
+  color: white;float: right;right:0px;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;
+  font-size: 17px;" href="index.html" onclick = "signOut();">Sign out</a>
+   <a id="username" style = "float: right;text-align: center;padding: 14px 16px;text-decoration: none;
+font-size: 17px; background-color: #ddd;
+  color: black;"></a>
+
+         </div>
+  <div class="py-5 text-white opaque-overlay" style="background-image: url(review.jpg); -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  min-width: 100%;
+  min-height: 100%;
+  height: 100%;
+  width: 100%;
+  display: block;">
+   
+    <div class="container py-5">
+      <div class="row">
+        <div class="col-md-5">
+          <br>
+          <br>
+          <br>
+          <label class="lead mb-4">Information</label>
+          <p id="date"></p>
+          <p id="location"></p>
+          <p id="time"></p>
+        </div>
+        <div class="col-md-7">
+          <h1 class="text-gray-dark">Review</h1>
+          <p class="lead mb-4">Write your review</p>
+          <form>
+            <div class="form-group">
+              <label for="comment">Comment:</label>
+              <textarea class="form-control" rows="5" id="review_text"></textarea>
+            </div>
+          </form>
+          <div class="container">
+            <button style = "  background-color: #8c2023;
+  color: white;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;
+  font-size: 17px;" onclick="writeNewPost(userEntity.post_id, userEntity.curr_user_id,review_text)">Submit</button>
+            <button style = "  background-color: #8c2023;
+  color: white;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;
+  font-size: 17px;" onclick="cancel_refresh()">Cancel</button>
+            <br>
+            <br>
+            <br>
+            <br>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyCkSaYu8onQ5v6VioLcxJHGH3idSorGtu8",
+      authDomain: "eatogether-dd7d2.firebaseapp.com",
+      databaseURL: "https://eatogether-dd7d2.firebaseio.com",
+      projectId: "eatogether-dd7d2",
+      storageBucket: "",
+      messagingSenderId: "210383482029"
+    };
+    firebase.initializeApp(config);
+    read_information();
+
+  function writeNewPost(post_id, writer_id,review_text) {
+
+    var text_id = document.getElementById("review_text");
+    var text = text_id.value;
+    
+    //alert(text.length)
+    if(text_id.value.length == 0){
+      alert("No text in review");
+      //cleartext();
+      window.location.reload();
+    }
+
+    //alert(text);
+    // A post entry.
+    var postData = {
+      post_id: post_id,
+      writer_id: writer_id,
+      text: text
+    };
+    //alert("okay");
+    if(confirm("Is it okay to submit?"))
+    {
+      // Get a key for a new Post.
+      var newPostKey = firebase.database().ref().child('review').push().key;
+      //cleartext();
+
+      // Write the new review.
+      var updates = {};
+      updates['/review/' + newPostKey] = postData;
+      //updates['/user-posts/' + uid + '/' + newPostKey] = postData;
+      return firebase.database().ref().update(updates);
+      //window.location.reload();
+      //cleartext();
+      //alert("finish");
+    }
+   // window.location.href="file:///D:/2017_USC/INF551/project/review_history.html";
+  }
+
+  function cancel_refresh(){
+    //when click the cancel button, check one more
+    if(confirm("Is it okay to cancel?"))
+    {
+      window.location.href="review.html";
+    }
+  }
+
+  function read_information(){
+    //read firebase and show left side
+    var partcpt_id_array = [];
+    var partcpt_name_array = [];
+    var ref = firebase.database().ref("post/");
+    ref.orderByChild('user_id').once('value').then(function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+            console.log(childSnapshot.key)
+            //change 1 to the post_id pass from previous page.
+                if (childSnapshot.key == userEntity.post_id) {
+                    var date = childSnapshot.val().date;
+                    var location = childSnapshot.val().location;
+                    var time = childSnapshot.val().time;
+                    
+                    document.getElementById("date").innerHTML = date;
+                    document.getElementById("location").innerHTML = location;
+                    document.getElementById("time").innerHTML = time;
+                }//if
+        }) // for each childsnapshot
+    });
+
+    //read user post 
+    var partcpt_email_array = [];
+    var partcpt_name_array = [];
+    var up_ref = firebase.database().ref("user_post/");
+    up_ref.orderByChild('user_id').once('value').then(function (up_snapshot) {
+        console.log(up_snapshot.val());
+        up_snapshot.forEach(function (up_firstSnapshot) {
+            //console.log(up_childSnapshot.val());
+            if (up_firstSnapshot.key == userEntity.post_id) {
+                up_firstSnapshot.forEach(function (up_secSnapshot) {
+                    partcpt_name = up_secSnapshot.val();
+                    // console.log(partcpt_id);
+                    partcpt_email = up_secSnapshot.key + "@usc.edu";
+                    partcpt_name_array.push(partcpt_name);
+                    partcpt_email_array.push(partcpt_email);
+                })
+            } //if
+        }) //for each upchildSnapshot
+        for (i = 0; i < partcpt_name_array.length; i++) {
+            // print all the participants' name in console
+            console.log(partcpt_name_array[i]);
+            //alert(partcpt_name_array[i])
+        }
+        // print all the participants' email in console
+        for (i = 0; i < partcpt_email_array.length; i++) {       
+            console.log(partcpt_email_array[i]);
+        }
+    }) //up_ref.orderByChild
+  }
+  </script>
+  <script>
+
+  var userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+    if (!userEntity){
+      alert("not login");
+       window.location.href="index.html"}
+
+       else{      
+
+        console.log("Hi," + userEntity.Name);
+        console.log(userEntity);
+        
+        document.getElementById("username").innerHTML = "Hi," + userEntity.Name;}
+  
+  </script>
+</body>
+</html>

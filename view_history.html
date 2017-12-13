@@ -1,0 +1,294 @@
+<html lang="en">
+<head>
+    <script src="https://www.gstatic.com/firebasejs/4.5.1/firebase.js"></script>
+   
+  
+    <style type="text/css">
+a {font-family:Georgia, serif;font-style:italic;font-weight: bold;}
+
+
+body {margin:0;}
+
+
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;  
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+  top: 0px;
+   
+}
+
+.topnav a.active {
+  background-color: #8c2023;
+  color: white;
+}
+
+.topnav a.signout {
+  float: right;
+ 
+}
+</style>
+
+</head>
+<script type="text/javascript">
+  function signOut() {
+
+      console.log('User signed out.');
+      //sessionStorage.removeItem('myUserEntity');
+       sessionStorage.clear();
+       localStorage.clear();
+
+
+ //window.location.href="test.html";
+
+    }
+
+</script>
+   <div class="topnav">
+  <a  href="post.html">Home</a>
+  <a  class="active" href="view_history.html">View History</a>
+
+  
+
+     <a  style = "  background-color: #8c2023;
+  color: white;float: right;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;
+  font-size: 17px;" href = "index.html" onclick = "signOut()">
+  Sign out</a>
+   <a id="username"  style = "float: right;text-align: center;padding: 14px 16px;text-decoration: none;
+font-size: 17px; background-color: #ddd;
+  color: black;"></a>
+
+   </div>
+
+    <div id="page">
+        <div  style="width: 100%;
+    position: relative;
+    z-index: 999;
+    height: 700px;width: 38.2%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  position: fixed;
+  height: 100%;
+  z-index: -1;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;background-image: url(view_history_bg.jpg)">
+            <div class="overlay" style = "position: absolute;
+  top: 0px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.5);"></div>
+            <nav role="navigation">
+                <ul>
+                    <li><a href="index.html"><i class="icon-home"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+
+        <div id="main-content">
+          <a style = "position: absolute; left:500px; top:80px">My Meal History with Eatogether</a>
+
+
+        </div>
+    </div>
+    </div>
+
+
+
+
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyCkSaYu8onQ5v6VioLcxJHGH3idSorGtu8",
+            authDomain: "eatogether-dd7d2.firebaseapp.com",
+            databaseURL: "https://eatogether-dd7d2.firebaseio.com",
+            projectId: "eatogether-dd7d2",
+            storageBucket: "",
+            messagingSenderId: "210383482029"
+        };
+
+
+        firebase.initializeApp(config);
+
+         if(sessionStorage.getItem('myUserEntity') == null){
+
+
+    //Redirect to login page, no user entity available in sessionStorage
+    
+ 
+ window.location.href="index.html";
+ console.log('no login');
+
+        }else{
+
+    var userEntity = {};
+    userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+    console.log("Hi," + userEntity.Name);
+    document.getElementById("username").innerHTML = "Hi," + userEntity.Name;
+
+
+
+         // testing: find all the meal that user2 join
+
+        var ref = firebase.database().ref("user_post/");
+        var post_id_array = [];
+        var post_data_array = [];
+        var post_loc_array = [];
+        var post_array = [];
+
+        var curr_user_id = userEntity.userId;
+
+
+        ref.orderByChild('user_id').once('value').then(function (snapshot) {
+
+            snapshot.forEach(function (childSnapshot) {
+                
+
+                if(curr_user_id in childSnapshot.val()){
+                  console.log(childSnapshot.val());
+                     console.log("in");
+                     post_info = {};
+                     post_info.post_id = childSnapshot.key;
+                     post_array.push(post_info);
+
+                }
+
+                }) // for each
+
+           
+
+                 var postref = firebase.database().ref("post/");
+
+                  postref.orderByChild('user_id').once('value').then(function (post_snapshot) {
+                     console.log(post_array.length);
+
+
+                      for (i = 0; i < post_array.length; i++) {
+                
+               
+
+
+            post_snapshot.forEach(function (post_childSnapshot) {
+
+                    if (post_array[i].post_id ==  post_childSnapshot.key){
+
+                         post_array[i].date = post_childSnapshot.val().date;
+                        console.log(post_childSnapshot.val().date);
+                        post_data_array.push(post_childSnapshot.val().date);
+
+                    }
+
+                })
+
+
+        }
+
+
+            for (i = 0; i < post_array.length; i++) {
+                var div = document.createElement("div");
+
+                var h2 = document.createElement("h2");
+                h2.id = "h2" + i
+                var a = document.createElement("a");
+
+
+
+
+                div.style.width = "100%";
+                div.style.height = "100px";
+                /*div.style.background = "#fff";*/
+                div.style.color = "black";
+                div.class = "history_meal";
+                div.id = "div" + i;
+
+                   div.style.position = "relative";
+                    div.style.left =  "500px";
+                     div.style.top =  "120px";
+                    a.style.color = "black";
+      
+        a.innerHTML = post_array[i].post_id+ ":"+  post_array[i].date;
+        a.onclick = createSession;
+
+    
+     // console.log(div.id + " " + post_data_array[i]);
+
+
+         // creat session and store user entity
+      myUserEntity = {};
+     
+     
+      // direct to test2.html,change it to your post page here
+      var url = "review.html?id="+myUserEntity+";";
+       a.href  = url;
+
+                
+
+
+              
+               
+                document.getElementById("main-content").appendChild(div);
+                document.getElementById("div" + i).appendChild(h2);
+                document.getElementById("h2" + i).appendChild(a);
+
+
+
+            }
+                  })
+  
+
+        });
+}//else
+function createSession(){
+      var tempid=this.innerHTML.split(":");
+ 
+
+      myUserEntity.post_id = tempid[0];
+
+      myUserEntity.curr_user_id = curr_user_id;
+      myUserEntity.Name=userEntity.Name;
+      
+      
+      //Store the entity object in sessionStorage where it will be accessible from all pages of your site.
+      sessionStorage.setItem('myUserEntity',JSON.stringify(myUserEntity));
+      key = sessionStorage.getItem('myUserEntity');
+
+}
+
+ function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+      sessionStorage.removeItem('myUserEntity');
+
+
+    });
+
+}
+
+
+    </script>
+
+
+
+
+</body>
+
+</html>

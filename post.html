@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test Firebase</title> 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css"></head>
+
+
+
+<style>
+.post-page {
+  width: 360px;
+  padding: 8% 0 0;
+  margin:0  auto;
+}
+.form input {
+  font-family: "Roboto", sans-serif;
+  outline: 0;
+  background:#f0fcff;
+  width: 100%;
+  border: 0;
+  margin: 0 0 10px;
+  padding: 15px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+.showbox{
+  background: #f0fcff; 
+  height:120px;
+  width: 150%;
+  position: relative;
+  left: -20%;
+  border-radius: 25px;
+
+}
+.showbox button{
+  color: #8c2023;
+  font-weight: bolder;
+  font-size: 100%;
+  position: relative;
+  background-color: #f2f2f2;
+  left: 80%;
+  height: 30px;
+  width: 80px;
+
+}
+.showhighlight{
+  color: #8c2023;
+  font-weight:bolder;
+  font-size: 120%;
+  background-size: 100px 60px;
+}
+
+
+.submit-btn {
+    width: 50px;
+    margin: 0 auto;
+    cursor: pointer;
+}
+.submit-form{
+    margin:0 auto;
+}
+
+
+body {
+    
+}
+
+
+a,p,label,h1,div{font-family:Georgia, serif;font-style:italic;font-weight: bold;}
+
+
+
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;  
+}
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+  top: 0px;
+   
+}
+
+.topnav a.active {
+  background-color: #8c2023;
+  color: white;
+}
+
+.topnav a.signout {
+  float: right;
+ 
+}
+</style>
+<div class="topnav">
+  <a class="active" href="#home">Home</a>
+   <a href="view_history.html">View History</a>
+
+  
+
+     <a  style = "  background-color: #8c2023;
+  color: white;float: right;color: #f2f2f2;text-align: center;padding: 14px 16px;text-decoration: none;
+  font-size: 17px;" href = "index.html" onclick = "signOut()">
+  Sign out</a>
+   <a id="username"  style = "float: right;text-align: center;padding: 14px 16px;text-decoration: none;
+font-size: 17px; background-color: #ddd;
+  color: black;"></a>
+
+   </div>
+  <body>
+<script src="https://www.gstatic.com/firebasejs/4.3.1/firebase.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+</script>
+<script src="http://requirejs.org/docs/release/2.2.0/minified/require.js"></script>
+<script type="http://home.ustc.edu.cn/~tongsw/post.css"></script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<script>
+
+ function signOut() {
+
+      console.log('User signed out.');
+      //sessionStorage.removeItem('myUserEntity');
+       sessionStorage.clear();
+       localStorage.clear();
+
+
+ //window.location.href="test.html";
+
+    }
+  
+  // Initialize Firebase
+
+  // Initialize Firebase
+   // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCkSaYu8onQ5v6VioLcxJHGH3idSorGtu8",
+    authDomain: "eatogether-dd7d2.firebaseapp.com",
+    databaseURL: "https://eatogether-dd7d2.firebaseio.com",
+    projectId: "eatogether-dd7d2",
+    storageBucket: "eatogether-dd7d2.appspot.com",
+    messagingSenderId: "210383482029"
+  };
+  firebase.initializeApp(config);
+
+
+
+  var userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+    if (!userEntity){
+      alert("not login");
+       window.location.href="index.html"}
+
+       else{      
+
+        console.log("Hi," + userEntity.Name);
+        
+        document.getElementById("username").innerHTML = "Hi," + userEntity.Name;
+ 
+   
+
+
+  var dbRef =firebase.database().ref().child("post").orderByKey();
+
+ dbRef.on('value',function(snapshot){
+  $('#messagesDiv').html(" ");
+
+  snapshot.forEach(function(childSnapshot){
+    var childKey=childSnapshot.key;
+    var childData=childSnapshot.val();
+    displayMessage(childData.topic,childData.date,childData.time,childData.max_num,childData.location);
+    function displayMessage(topic,date,time,max,loc){
+    $('#messagesDiv').prepend('<div class="showbox"><li><label class="showhighlight">topic</label>&nbsp&nbsp&nbsp'+topic+'</li>'+
+  '<li><label class="showhighlight">date&nbsp;</label>&nbsp;&nbsp;&nbsp'+date+'</li>'+
+  '<li><label class="showhighlight">max&nbsp;</label>&nbsp&nbsp&nbsp'+max+'</li>'+
+  '<li><label class="showhighlight">loc&nbsp;&nbsp;&nbsp;</label>&nbsp&nbsp&nbsp'+loc+'</li> </ul>'+
+  '<button type="button" onclick= "writeJoin(this.id);notice()" id='+childKey+' >E-Talk</button> </div> <p>&nbsp;</p><p>&nbsp;</p>');
+    $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+  }
+
+  })
+    });
+    }  
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+
+ function writeUserData(){
+    var userEntity = JSON.parse(sessionStorage.getItem('myUserEntity'));
+    if (!userEntity){
+      alert("not login");
+       window.location.href="index.html"}
+
+
+    var top=document.getElementById("topic").value;
+    var t=document.getElementById("time").value;
+    var dat=document.getElementById("date").value;
+    var max=document.getElementById("max").value;
+    var loc=document.getElementById("location").value;
+  alert("write");
+  var myDate= new Date();
+  myDate.getTime
+  var idtemp=myDate.getTime()
+   firebase.database().ref("post/" + idtemp).set({
+  topic:top,
+  time: t, 
+  date: dat,
+  max_num: max,
+  location:loc,
+  founder_id:userEntity.email,
+  });
+   firebase.database().ref().child("user_post/" + idtemp).once('value',function(snapshot){
+    console.log(snapshot.numChildren());
+    count=snapshot.numChildren();
+    console.log([count]);
+    console.log(userEntity.Name);
+    var user_email=userEntity.email;
+    var to_remove = userEntity.email.slice(user_email.length-8,user_email.length);
+    var key = userEntity.email.slice(0,user_email.length - to_remove.length);
+   firebase.database().ref("user_post/" + idtemp).update({
+   [key]:userEntity.Name});
+   });
+}
+
+
+  function writeJoin(click_id){
+   
+    alert(click_id);
+     var myDate= new Date();
+    myDate.getTime
+
+    var count=0
+   firebase.database().ref().child("user_post/" + click_id).once('value',function(snapshot){
+    console.log(snapshot.numChildren());
+    count=snapshot.numChildren();
+    console.log([count]);
+    console.log(userEntity.Name);
+    var user_email=userEntity.email;
+    var to_remove = userEntity.email.slice(user_email.length-8,user_email.length);
+    var key = userEntity.email.slice(0,user_email.length - to_remove.length);
+   firebase.database().ref("user_post/" + click_id).update({
+   [key]:userEntity.Name});
+   });
+
+
+}
+
+</script>
+
+  <link rel="manifest" href="/manifest.json">
+  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async='async'></script>
+  <script>
+  var OneSignal = window.OneSignal || [];
+    OneSignal.push(["init", {
+      appId: "34f4a22c-511d-4300-aedb-05f9c4c038c1",
+      autoRegister: false, /* Set to true to automatically prompt visitors */
+      notifyButton: {
+          enable: true /* Set to false to hide */
+      }
+    }]);
+
+function notice(){
+OneSignal.push(function() {
+  OneSignal.sendSelfNotification(
+  /* Title (defaults if unset) */
+  "some one join the E-Talk",
+  /* Message (defaults if unset) */
+  "come to have fun", 
+   /* URL (defaults if unset) */
+  'http://home.ustc.edu.cn/~tongsw/eat.png',
+  /* Icon */
+  'https://onesignal.com/images/notification_logo.png',
+  {
+    /* Additional data hash */
+    notificationType: 'news-feature'
+  }, 
+  [{ /* Buttons */
+    /* Choose any unique identifier for your button. The ID of the clicked button is passed to you so you can identify which button is clicked */
+    id: 'like-button',
+    /* The text the button should display. Supports emojis. */
+    text: 'Like',
+    /* A valid publicly reachable URL to an icon. Keep this small because it's downloaded on each notification display. */
+    icon: 'http://home.ustc.edu.cn/~tongsw/eat.png',
+    /* The URL to open when this action button is clicked. See the sections below for special URLs that prevent opening any window. */
+    url: 'https://example.com/?_osp=do_not_open'
+  },
+  {
+    id: 'read-more-button',
+    text: 'Read more',
+    icon: 'http://i.imgur.com/MIxJp1L.png',
+    url: 'https://example.com/?_osp=do_not_open'
+  }]
+);
+});
+}
+  </script>
+
+ 
+  
+
+
+
+
+<link rel="stylesheet" href="submit.css">
+<div id="lpage" class="post-page">
+<div class="form">
+ <form  method="get">
+            <div class="form-group">
+              <input type="text" class="form-control" id="topic" placeholder="topic:music">
+              <input type="text" class="form-control" id="time" placeholder="time:15:00-15:30">
+              <input type="date" class="form-control" id="date" placeholder="11/12">
+               <select type="text" class="form-control" id="max" style="width:360px" placeholder="3<number<6">
+             <option>3 </option>
+             <option>4 </option>
+             <option>5 </option>
+              </select>
+             <p></p>
+              <input  type="text" class="form-control" id="location" placeholder="location:tcc">
+            </div>
+    <div class="submit-btn">
+            <svg  onclick="writeUserData();notice();" width="50px" height="50px" viewBox="487 475 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <defs>
+                    <circle id="path-1" cx="25" cy="25" r="25"></circle>
+                    <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="50" height="50" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                </defs>
+                <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(487.000000, 475.000000)">
+                    <use id="Oval" stroke="8c2023" mask="url(#mask-2)" stroke-width="6" fill="#FFFAF0" xlink:href="#path-1"></use>
+                    <circle id="Oval-2" fill="8c2023" cx="25.5" cy="25.5" r="12.5"></circle>
+                </g>
+            </svg>
+
+        </div> 
+</form >
+</div>
+<div id='messagesDiv'>
+
+
+</div>
+</div>
+
+
+</body>
